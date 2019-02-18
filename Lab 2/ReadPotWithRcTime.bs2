@@ -1,0 +1,12 @@
+' What's a Microcontroller - ReadPotWithRcTime.bs2
+' Read potentiometer in RC-time circuit using RCTIME command.
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+time VAR Word
+PAUSE 1000
+DO
+ HIGH 7
+ PAUSE 100
+ RCTIME 7, 1, time
+ DEBUG HOME, "time = ", DEC5 time
+LOOP

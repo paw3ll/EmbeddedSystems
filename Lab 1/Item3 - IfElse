@@ -1,0 +1,55 @@
+                                                ' What's a Microcontroller - ReactionTimer.bs2
+' Test reaction time with a pushbutton and a bicolor LED.
+
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+PAUSE 1000                                   ' Wait 1 sec before 1st message.
+
+timeCounter VAR Word                         ' Declare variable to store time.
+value VAR Byte
+value = 23
+
+DEBUG "Press and hold pushbutton", CR,       ' Display reaction instructions.
+      "to make light turn red.", CR, CR,
+      "When light turns green, let", CR,
+      "go as fast as you can.", CR, CR
+
+DO                                           ' Begin main loop.
+
+  DO                                         ' Nested loop repeats...
+  LOOP UNTIL IN3 = 1                         ' until pushbutton press.
+
+  HIGH 14                                    ' Bicolor LED red.
+  LOW 15
+
+  RANDOM value
+  DEBUG "Delay time ", ? 1000 + (value*4), CR
+  PAUSE 1000 + (value*4)                         ' Delay random seconds.
+
+  LOW 14                                     ' Bicolor LED green.
+  HIGH 15
+
+  timeCounter = 0                            ' Set timeCounter to zero.
+
+
+   DO                                         ' Nested loop, count time...
+
+    PAUSE 1
+    timeCounter = timeCounter + 1
+
+  LOOP UNTIL IN3 = 0                         ' until pushbutton is released.
+
+  LOW 15                                     ' Bicolor LED off.
+
+  IF (timeCounter <= 2) THEN
+      DEBUG "Please wait until after the light has turned green to let go of the button(s)"
+  ELSE
+      DEBUG "Your time was ", DEC timeCounter, CR ' Display time measurement.
+
+  ENDIF
+
+  DEBUG " To play again, hold the ", CR,      ' Play again instructions.
+  "button down again.", CR, CR
+
+LOOP

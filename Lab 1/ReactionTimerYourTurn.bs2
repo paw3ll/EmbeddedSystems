@@ -1,0 +1,72 @@
+' What's a Microcontroller - ReactionTimer.bs2
+' Test reaction time with a pushbutton and a bicolor LED.
+
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+PAUSE 1000 ' Wait 1 sec before 1st message.        _
+
+timeCounter VAR Word ' Declare variable to store time.
+value VAR Byte       ' ITEM 2
+value = 23           ' ITEM 2
+
+timeCounterA VAR Word  ' Time score of player A
+timeCounterB VAR Word  ' Time score of player B
+
+DEBUG "Press and hold pushbuttons", CR,   ' Display reaction instructions.
+      "to make light turn red.", CR, CR,
+      "When light turns green, let", CR,
+      "go as fast as you can.", CR, CR
+
+DO                                       ' Begin main loop.
+  DO                                     ' Nested loop repeats...
+  LOOP UNTIL (IN3 = 1) AND (IN4 = 1)     ' until pushbutton press.
+
+ HIGH 14                                 ' Bicolor LED red.
+ LOW 15
+
+ RANDOM value                                      ' ITEM 2
+ DEBUG "Delay time ", ? 1000 + (value*4), CR       ' ITEM 2
+
+ PAUSE 1000 + (value*4)                            ' Delay 1 second. & ITEM 2
+
+ LOW 14                                  ' Bicolor LED green.
+ HIGH 15
+
+ timeCounterA = 0                         ' Set timeCounter to zero.
+ timeCounterB = 0
+
+ DO                                      ' Nested loop, count time...
+
+    PAUSE 1
+
+    IF (IN3 = 1) THEN
+      timeCounterA = timeCounterA + 1
+    ENDIF
+    IF (IN4 = 1) THEN
+      timeCounterB = timeCounterB + 1
+    ENDIF
+
+    LOOP UNTIL (IN3 = 0) AND (IN3 = 0)   ' until pushbutton is released.
+
+    LOW 15                               ' Bicolor LED off.
+
+    timeCounter = timeCounter */ 548     ' ITEM 1
+
+    timeCounterA = timeCounterA */ 548
+    timeCounterB = timeCounterB */ 548
+
+    DEBUG "Player A Time: ", DEC timeCounterA, " ms. ", CR
+    DEBUG "Player B Time: ", DEC timeCounterB, " ms. ", CR, CR
+
+    IF (timeCounterA < timeCounterB) THEN
+      DEBUG "Player A is the winner!", CR
+    ELSEIF (timeCounterB < timeCounterA) THEN
+      DEBUG "Player B is the winner!", CR
+    ELSE ' A & B times are equal
+      DEBUG "It's a tie!", CR
+    ENDIF
+  DEBUG CR
+  DEBUG "To play again, hold the ", CR ' Play again instructions.
+  DEBUG "buttons down again.", CR, CR
+LOOP

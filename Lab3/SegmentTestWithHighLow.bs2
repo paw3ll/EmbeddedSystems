@@ -1,0 +1,14 @@
+' What's a Microcontroller - SegmentTestWithHighLow.bs2
+' Individually test each segment in a 7-Segment LED display.
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+pinCounter VAR Nib
+PAUSE 1000
+DEBUG "I/O Pin", CR,
+ "-------", CR
+FOR pinCounter = 8 TO 15
+ DEBUG DEC2 pinCounter, CR
+ HIGH pinCounter
+ PAUSE 1000
+ LOW pinCounter
+NEXT

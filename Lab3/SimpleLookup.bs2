@@ -1,0 +1,19 @@
+' What's a Microcontroller - SimpleLookup.bs2
+' Debug a value using an index and a lookup table.
+' (KEY VALUE PAIR) 
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+value VAR Byte
+index VAR Nib
+index = 3
+PAUSE 1000
+DEBUG ? index
+LOOKUP index, [7, 85, 19, 167, 28], value
+DEBUG ? value, CR
+DEBUG "Change the index variable to a ", CR,
+ "different number(between 0 and 4).", CR, CR,
+ "Run the modified program and ", CR,
+ "check to see what number the", CR,
+ "LOOKUP command places in the", CR,
+ "value variable."
+END

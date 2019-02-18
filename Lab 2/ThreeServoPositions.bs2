@@ -1,0 +1,25 @@
+' What's a Microcontroller – ThreeServoPositions.bs2
+' Servo holds the 45, 90, and 135 degree positions for about 3 seconds each.
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+counter VAR Word
+PAUSE 1000
+DEBUG "Position = 45 degrees...", CR
+FOR counter = 1 TO 500 ' 45 degrees for about 3 sec.
+  PULSOUT 14, 450
+  PAUSE 20
+NEXT
+
+DEBUG "Position = 90 degrees...", CR
+FOR counter = 1 TO 500 ' 90 degrees for about 3 sec.
+  PULSOUT 14, 615
+  PAUSE 20
+NEXT
+
+DEBUG "Position = 135 degrees...", CR
+FOR counter = 1 TO 500 ' 135 degrees for about 3 sec.
+  PULSOUT 14, 850
+  PAUSE 20
+NEXT
+DEBUG "All done.", CR, CR
+END

@@ -1,0 +1,38 @@
+' What's a Microcontroller - LightMeter.bs2
+' Indicate light level using 7-segment display.
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+PAUSE 1000
+DEBUG "Program Running!"
+index VAR Nib ' Variable declarations.
+time VAR Word
+OUTH = %00000000 ' Initialize 7-segment display.
+DIRH = %11111111
+DO ' Main routine.
+ GOSUB Get_Rc_Time
+ GOSUB Delay
+ GOSUB Update_Display
+LOOP
+
+ ' Subroutines
+Get_Rc_Time: ' RC-time subroutine
+ HIGH 2
+ PAUSE 3
+ RCTIME 2, 1, time
+RETURN
+
+Delay: ' Delay subroutine.
+ PAUSE time / 3
+RETURN
+
+Update_Display: ' Display updating subroutine.
+ IF index = 6 THEN index = 0
+ ' BAFG.CDE
+ LOOKUP index, [ %01000000,
+ %10000000,
+ %00000100,
+ %00000010,
+ %00000001,
+ %00100000 ], OUTH
+ index = index + 1
+RETURN

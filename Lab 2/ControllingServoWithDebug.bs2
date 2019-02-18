@@ -1,0 +1,29 @@
+' What's a Microcontroller - ServoControlWithDebug.bs2
+' Send messages to the BASIC Stamp to control a servo using
+' the Debug Terminal.
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+counter VAR Word
+pulses VAR Word
+duration VAR Word
+PAUSE 1000
+DEBUG CLS, "Servo Run Time:", CR,
+ " ~44 pulses in 1 second", CR,
+ "Servo Position:", CR,
+ " 350 <= PULSOUT Duration <= 1150", CR, CR
+DO
+ DEBUG "Enter run time as a ", CR,
+ "number of pulses: "
+ DEBUGIN DEC pulses
+ DEBUG "Enter position as a", CR,
+ "PULSOUT Duration: "
+ DEBUGIN DEC duration
+ duration = duration MIN 350 MAX 1150
+ DEBUG "Servo is running...", CR
+ FOR counter = 1 TO pulses
+ PULSOUT 14, duration
+ PAUSE 20
+ NEXT
+ DEBUG "DONE", CR, CR
+ PAUSE 1000
+LOOP

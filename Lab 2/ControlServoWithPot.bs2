@@ -1,0 +1,21 @@
+' What's a Microcontroller - ControlServoWithPot.bs2
+' Read potentiometer in RC-time circuit using RCTIME command.
+' Scale time by 0.724 and offset by 500 for the servo.
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+PAUSE 1000
+time VAR Word
+deg VAR Word
+DO
+ HIGH 7
+ PAUSE 100
+ RCTIME 7, 1, time
+ time = time*/300
+ time= time + 283
+ time = time MIN 283 MAX 1000 '10 to 170 deg
+ PULSOUT 14, time ' Send pulse to servo.
+ deg = time-250
+ deg = deg*9/40
+ DEBUG HOME, DEC5 time ' Display adjusted time value.
+ DEBUG HOME, DEC5 deg
+LOOP

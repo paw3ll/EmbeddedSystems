@@ -1,0 +1,63 @@
+' Convery Belt - Lab 3
+' Colton Zeinner & Kody Kloth
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+'Keep counts of the number of different types of boxes moving on the conveyor(10, 20, 30) . Store this data in the non-volatile memory (EEPROM)
+'FOR security in the event of accidental reset of the microcontroller AND FOR retrieval at the END of the day.
+
+PAUSE 1000
+lightOnPhoto VAR Word
+timeBlocked VAR Word
+boxCount10 VAR Word
+boxCount20 VAR Word
+boxCount30 VAR Word
+
+DO ' Main routine.
+ GOSUB LightLED
+ GOSUB PhotoTranRead
+LOOP
+
+'Subrotuines
+
+'Lights LED at start of shift
+LightLED:
+ HIGH 14
+ PAUSE 500
+RETURN
+
+'Begin reading with Phototransistor
+PhotoTranRead:
+ HIGH 13
+ PAUSE 100
+ RCTIME 13, 1, lightOnPhoto
+ DEBUG HOME, "lightOnPhoto = ", DEC5 lightOnPhoto
+ DO WHILE lightOnPhoto > 1000
+  timeBlocked = timeBlocked + 1
+  RCTIME 13, 1, lightOnPhoto
+ LOOP
+
+ DEBUG CR, "time blocked = ", DEC5 timeBlocked
+  IF timeBlocked = 1 THEN
+    boxCount10 = boxCount10 + 1
+    DEBUG CR, "10in Box Count = ", DEC5 boxCount10
+  ELSEIF timeBlocked = 2 THEN
+    boxCount20 = boxCount20 + 1
+    DEBUG CR, "20in Box Count = ", DEC5 boxCount20
+  ELSEIF timeBlocked = 3 THEN
+    boxCount30 = boxCount30 +1
+    DEBUG CR, "30in Box Count = ", DEC5 boxCount30
+  ELSEIF timeBlocked > 3 THEN
+    DEBUG CR, "There is a jam. Do something."
+  ELSE
+    DEBUG CR, "Conveyer running as normal."
+  ENDIF
+
+  'WORKING ON CREATING A RESET FOR THE LIGHTO ON PHOTO
+  ' TIME BLOCKER NEEDS TO BE RESET SO THAT THE LOOP KEEPS RUNNING
+  lightOnPhoto < 1000
+  timeBlocker = 0
+
+RETURN
+
+

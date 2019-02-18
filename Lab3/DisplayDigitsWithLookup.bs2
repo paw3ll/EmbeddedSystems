@@ -1,0 +1,19 @@
+' What's a Microcontroller - DisplayDigitsWithLookup.bs2
+' Use a lookup table to store and display digits with a 7-segment LED display.
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+index VAR Nib
+OUTH = %00000000
+DIRH = %11111111
+PAUSE 1000
+DEBUG "index OUTH ", CR,
+ "----- --------", CR
+FOR index = 0 TO 9
+ LOOKUP index, [ %11100111, %10000100, %11010011,
+ %11010110, %10110100, %01110110,
+ %01110111, %11000100, %11110111, %11110110 ], OUTH
+ DEBUG " ", DEC2 index, " ", BIN8 OUTH, CR
+ PAUSE 1000
+NEXT
+DIRH = %00000000
+END

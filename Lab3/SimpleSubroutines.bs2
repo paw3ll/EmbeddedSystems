@@ -1,0 +1,26 @@
+' What's a Microcontroller - SimpleSubroutines.bs2
+' Demonstrate how subroutines work.
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+PAUSE 1000
+DO
+ DEBUG CLS, "Start main routine.", CR
+ PAUSE 2000
+ GOSUB First_Subroutine
+ DEBUG "Back in main.", CR
+ PAUSE 2000
+ GOSUB Second_Subroutine
+ DEBUG "Repeat main...", CR
+ PAUSE 2000
+LOOP
+First_Subroutine:
+ DEBUG " Executing first "
+ DEBUG "subroutine.", CR
+ PAUSE 3000
+RETURN
+Second_Subroutine:
+
+ DEBUG " Executing second "
+ DEBUG "subroutine.", CR
+ PAUSE 3000
+RETURN

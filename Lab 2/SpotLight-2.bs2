@@ -1,0 +1,22 @@
+'A spotlight is positioned by a servo motor which is in turn controlled
+'by a smooth rotary switch. Use a potentiometer to model the rotary switch.
+'Map the range of rotation of the pot to the range of motion of the servo to position the spotlight as precisely as possible.
+'Display the angular position in degrees on the computer screen as the pot's wiper is rotated and the servo's horn is positioned.
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+PAUSE 1000
+time VAR Word
+deg VAR Word
+DO
+ HIGH 7
+ PAUSE 100
+ RCTIME 7, 1, time
+ time = time*/300
+ time= time + 283
+ time = time MIN 283 MAX 1000 '10 to 170 deg
+ PULSOUT 14, time ' Send pulse to servo.
+ deg = time-250
+ deg = deg*9/40
+ DEBUG HOME, DEC5 time ' Display adjusted time value.
+ DEBUG HOME, DEC5 deg
+LOOP
