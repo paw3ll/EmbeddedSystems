@@ -7,15 +7,16 @@
 'FOR security in the event of accidental reset of the microcontroller AND FOR retrieval at the END of the day.
 
 PAUSE 1000
-lightOnPhoto VAR Word
-timeBlocked VAR Word
-boxCount10 VAR Word
-boxCount20 VAR Word
-boxCount30 VAR Word
-jamCount VAR Word
-jamTime VAR Word
+lightOnPhoto VAR Word  'Amount of light touching photosensor
+timeBlocked VAR Word ' Length of time sensor was blocked. Used to determine box size & set jamClear
+boxCount10 VAR Word ' Count of 10 in boxes
+boxCount20 VAR Word ' Count of 20 in boxes
+boxCount30 VAR Word ' Count of 30 in boxes
+jamClear VAR Bit ' Used for pushbutton switch. If = 0, it's clear. If = 1, there's a jam and alarm will go off.
+jamCount VAR Word ' Used to store amount of jams.
 
 DO ' Main routine.
+ jamClear = 0
  GOSUB LightLED
  GOSUB PhotoTranRead
 LOOP
@@ -29,6 +30,7 @@ LightLED:
 RETURN
 
 'Begin reading with Phototransistor
+' NEED TO SEND NUMBER TO EEPROM
 PhotoTranRead:
  HIGH 13
  PAUSE 100
@@ -50,27 +52,45 @@ PhotoTranRead:
     boxCount30 = boxCount30 +1
     DEBUG CR, "30in Box Count = ", DEC5 boxCount30
   ELSEIF timeBlocked > 3 THEN
-    DEBUG CR, "There is a jam. Clear jam and press button to reset the alarm."
-    '!!There may need to be an array or something to keep track of each jam's time rather than total time of jams
-    jamCount = jamCount + 1
-    IN3 = 0
-    DO 'Turn LED on and off to show a jam (blinking light)
-     HIGH 14
-     PAUSE 450
-     LOW 14
-     PAUSE 450
-     jamTime = jamTime + 1
-    LOOP until IN3 = 1 & timeBlocked < 3 'Clears Jam alarm if the button is pressed and the light transistor is unblocked
+  GOSUB JamAlarm
   ELSE
     DEBUG CR, "Conveyer running as normal."
   ENDIF
-  
-  'WORKING ON CREATING A RESET FOR THE LIGHT ON PHOTO
-  'TIME BLOCKER NEEDS TO BE RESET SO THAT THE LOOP KEEPS RUNNING
-  
-  IF lightOnPhoto < 1000 THEN 'TIME BLOCKER RESET WHEN THE TRANSISTOR IS NO LONGER SHADED
-    timeBlocker = 0
-  ENDIF
+
+  'WORKING ON CREATING A RESET FOR THE LIGHTO ON PHOTO
+  ' TIME BLOCKER NEEDS TO BE RESET SO THAT THE LOOP KEEPS RUNNING
+  lightOnPhoto < 1000
+  timeBlocker = 0
+
 RETURN
+
+JamAlarm:
+  jamClear = 1
+  jamCount = jamCount + 1
+  'JamTimer start
+  DO WHILE jamClear != 0
+    DEBUG CR, "There is a jam. Do something."
+    HIGH 14
+    PAUSE 500
+    LOW 14
+    ' Needs push button reset. I.e Press button when jam is reset, jamClear is then set to 0 (true)
+    ' breaks loop and keeps on scootin.
+    ' Need number of jams, and duration of each. Store in EPPROM
+  loop
+  'JamTimer end
+  'Store jam timer time in a list
+return
+
+PresentGraph:
+'Present a live graph on the computer screen that shows the total number of boxes scanned versus time from the beginning of the shift.
+'In the event of reset ANd reboot the x-axis may show time from the beginning of restart but the y-axis must show the total box COUNt
+'from the beginning of the shift as usual
+
+EndShift:
+'At the end of the shift, present the accumulated data on the computer screen in a suitable tabular form.
+
+
+
+
 
 
