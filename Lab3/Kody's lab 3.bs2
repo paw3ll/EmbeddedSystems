@@ -31,9 +31,8 @@ LightLED:
 RETURN
 
 'Begin reading with Phototransistor
-' NEED TO SEND NUMBER TO EEPROM
-FOR eepromAddress = 0 TO 8 STEP 2       'I'm not positive where this needs to be but we can overwrite the box count everytime a new value is created
-PhotoTranRead:                          'It's stepped by 2 because all of the variables are words and they take 2 bits,
+' NEED TO SEND NUMBER TO EEPROM       
+PhotoTranRead:                        
  HIGH 13
  PAUSE 100
  RCTIME 13, 1, lightOnPhoto
@@ -45,7 +44,7 @@ PhotoTranRead:                          'It's stepped by 2 because all of the va
 
  DEBUG CR, "time blocked = ", DEC5 timeBlocked
   IF timeBlocked = 1 THEN
-    FOR eepromAddress = 0
+    FOR eepromAddress = 0 'I'm not positive where this needs to be but we can overwrite the box count everytime a new value is created
       boxCount10 = boxCount10 + 1
       WRITE eepromAddress, Word boxCount10
     next
