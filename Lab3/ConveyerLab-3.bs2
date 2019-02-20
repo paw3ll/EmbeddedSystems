@@ -12,6 +12,8 @@ timeBlocked VAR Word
 boxCount10 VAR Word
 boxCount20 VAR Word
 boxCount30 VAR Word
+jamCount VAR Word
+jamTime VAR Word
 
 DO ' Main routine.
  GOSUB LightLED
@@ -40,24 +42,40 @@ PhotoTranRead:
  DEBUG CR, "time blocked = ", DEC5 timeBlocked
   IF timeBlocked = 1 THEN
     boxCount10 = boxCount10 + 1
-    DEBUG CR, "10in Box Count = ", DEC5 boxCount10
+    'DEBUG CR, "10in Box Count = ", DEC5 boxCount10
   ELSEIF timeBlocked = 2 THEN
     boxCount20 = boxCount20 + 1
-    DEBUG CR, "20in Box Count = ", DEC5 boxCount20
+    'DEBUG CR, "20in Box Count = ", DEC5 boxCount20
   ELSEIF timeBlocked = 3 THEN
     boxCount30 = boxCount30 +1
-    DEBUG CR, "30in Box Count = ", DEC5 boxCount30
+    'DEBUG CR, "30in Box Count = ", DEC5 boxCount30
   ELSEIF timeBlocked > 3 THEN
-    DEBUG CR, "There is a jam. Do something."
+    DEBUG CR, "There is a jam. Clear jam and press button to reset the alarm."
+    '!!There may need to be an array or something to keep track of each jam's time rather than total time of jams
+    jamCount = jamCount + 1
+    IN3 = 0
+    DO 'Turn LED on and off to show a jam (blinking light)
+     HIGH 14
+     PAUSE 450
+     LOW 14
+     PAUSE 450
+     jamTime = jamTime + 1
+    LOOP until IN3 = 1 & timeBlocked < 3 'Clears Jam alarm if the button is pressed and the light transistor is unblocked
   ELSE
     DEBUG CR, "Conveyer running as normal."
   ENDIF
-
-  'WORKING ON CREATING A RESET FOR THE LIGHTO ON PHOTO
-  ' TIME BLOCKER NEEDS TO BE RESET SO THAT THE LOOP KEEPS RUNNING
-  lightOnPhoto < 1000
-  timeBlocker = 0
-
+  'SINCE THEY ARE OUT OF THE LOOPS THEY WILL ALL DISPLAY EVERY TIME ONE IS TRIGGERED INSTEAD OF ONE AT A TIME
+  DEBUG CR, "10in Box Count = ", DEC5 boxCount10
+  DEBUG CR, "20in Box Count = ", DEC5 boxCount20
+  DEBUG CR, "30in Box Count = ", DEC5 boxCount30
+  DEBUG CR, "Jams this Shift = ", DEC5 jamCount
+  
+  'WORKING ON CREATING A RESET FOR THE LIGHT ON PHOTO
+  'TIME BLOCKER NEEDS TO BE RESET SO THAT THE LOOP KEEPS RUNNING
+  
+  IF lightOnPhoto < 1000 THEN 'TIME BLOCKER RESET WHEN THE TRANSISTOR IS NO LONGER SHADED
+    timeBlocker = 0
+  ENDIF
 RETURN
 
 
