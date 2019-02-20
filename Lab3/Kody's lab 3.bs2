@@ -1,0 +1,97 @@
+' Convery Belt - Lab 3
+' Colton Zeinner & Kody Kloth
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+'Keep counts of the number of different types of boxes moving on the conveyor(10, 20, 30) . Store this data in the non-volatile memory (EEPROM)
+'FOR security in the event of accidental reset of the microcontroller AND FOR retrieval at the END of the day.
+
+PAUSE 1000
+lightOnPhoto VAR Word  'Amount of light touching photosensor
+timeBlocked VAR Word ' Length of time sensor was blocked. Used to determine box size & set jamClear
+boxCount10 VAR Word ' Count of 10 in boxes
+boxCount20 VAR Word ' Count of 20 in boxes
+boxCount30 VAR Word ' Count of 30 in boxes
+jamTime VAR Word ' Used for timing each jam, takes a time measurement until the jam is cleared.
+jamCount VAR Word ' Used to store amount of jams.
+eepromAddress VAR Byte ' Where the info will be stored. Page 208 for more on the code
+
+DO ' Main routine.
+ jamClear = 0
+ GOSUB LightLED
+ GOSUB PhotoTranRead
+LOOP
+
+'Subrotuines
+
+'Lights LED at start of shift
+LightLED:
+ HIGH 14
+ PAUSE 500
+RETURN
+
+'Begin reading with Phototransistor
+' NEED TO SEND NUMBER TO EEPROM
+FOR eepromAddress = 0 TO 8 STEP 2       'I'm not positive where this needs to be but we can overwrite the box count everytime a new value is created
+PhotoTranRead:                          'It's stepped by 2 because all of the variables are words and they take 2 bits,
+ HIGH 13
+ PAUSE 100
+ RCTIME 13, 1, lightOnPhoto
+ DEBUG HOME, "lightOnPhoto = ", DEC5 lightOnPhoto
+ DO WHILE lightOnPhoto > 1000
+  timeBlocked = timeBlocked + 1
+  RCTIME 13, 1, lightOnPhoto
+ LOOP
+
+ DEBUG CR, "time blocked = ", DEC5 timeBlocked
+  IF timeBlocked = 1 THEN
+    FOR eepromAddress = 0
+      boxCount10 = boxCount10 + 1
+      WRITE eepromAddress, Word boxCount10
+    next
+    DEBUG CR, "10in Box Count = ", DEC5 boxCount10
+  ELSEIF timeBlocked = 2 THEN
+    boxCount20 = boxCount20 + 1
+    DEBUG CR, "20in Box Count = ", DEC5 boxCount20
+  ELSEIF timeBlocked = 3 THEN
+    boxCount30 = boxCount30 +1
+    DEBUG CR, "30in Box Count = ", DEC5 boxCount30
+  ELSEIF timeBlocked > 3 THEN
+  GOSUB JamAlarm
+  ELSE
+    DEBUG CR, "Conveyer running normally."
+  ENDIF
+
+  ' WORKING ON CREATING A RESET FOR THE LIGHT ON PHOTO
+  ' TIME BLOCKER NEEDS TO BE RESET SO THAT THE LOOP KEEPS RUNNING
+  IF lightOnPhoto < 1000 THEN
+    timeBlocker = 0
+  ENDIF
+
+RETURN
+
+JamAlarm:
+  jamCount = jamCount + 1
+  'JamTimer start
+  DO WHILE IN3 != 1
+    DEBUG CR, "There is a jam. Clear jam and press the button."
+    HIGH 14
+    PAUSE 450
+    LOW 14
+    PAUSE 450
+    jamTime = jamTime + 1
+    ' We dont need jamclear, we need a button circuit like lab 1, its on page 81 if you want to look at the code
+    ' breaks loop and keeps on scootin.
+    ' Need number of jams, and duration of each. Store in EPPROM
+  LOOP
+  'JamTimer end
+  'Store jam timer time in a list
+RETURN
+
+PresentGraph:
+'Present a live graph on the computer screen that shows the total number of boxes scanned versus time from the beginning of the shift.
+'In the event of reset ANd reboot the x-axis may show time from the beginning of restart but the y-axis must show the total box COUNt
+'from the beginning of the shift as usual
+
+EndShift:
+'At the end of the shift, present the accumulated data on the computer screen in a suitable tabular form.
