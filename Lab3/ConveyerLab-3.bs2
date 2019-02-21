@@ -9,16 +9,21 @@
 PAUSE 1000
 lightOnPhoto VAR Word  'Amount of light touching photosensor
 timeBlocked VAR Word ' Length of time sensor was blocked. Used to determine box size & set jamClear
-boxCount10 VAR Word ' Count of 10 in boxes
-boxCount20 VAR Word ' Count of 20 in boxes
-boxCount30 VAR Word ' Count of 30 in boxes
-jamClear VAR Bit ' Used for pushbutton switch. If = 0, it's clear. If = 1, there's a jam and alarm will go off.
-jamCount VAR Word ' Used to store amount of jams.
+boxCount10 VAR byte ' Count of 10 in boxes
+boxCount20 VAR byte ' Count of 20 in boxes
+boxCount30 VAR byte ' Count of 30 in boxes
+jamCount VAR Byte   ' Count of jams
+shift VAR Bit       ' Whether or not shift is active.
+eepromAddress VAR Byte
+jamTimer VAR word
 
 DO ' Main routine.
- jamClear = 0
+ jamCount = 0
+ shift = 0
  GOSUB LightLED
- GOSUB PhotoTranRead
+ WHILE shift = 0
+  GOSUB PhotoTranRead
+ LOOP
 LOOP
 
 'Subrotuines
@@ -42,44 +47,53 @@ PhotoTranRead:
  LOOP
 
  DEBUG CR, "time blocked = ", DEC5 timeBlocked
+ PAUSE 5000 ' Need pause for length of boxes, otherwise reads 1 and instantly goes into loop
   IF timeBlocked = 1 THEN
     boxCount10 = boxCount10 + 1
     DEBUG CR, "10in Box Count = ", DEC5 boxCount10
+    FOR eepromAddress = 0 TO 1 STEP 1
+    WRITE eepromAddress, Word boxCount10
+    NEXT
   ELSEIF timeBlocked = 2 THEN
     boxCount20 = boxCount20 + 1
     DEBUG CR, "20in Box Count = ", DEC5 boxCount20
+    FOR eepromAddress = 1 TO 2 STEP 1
+    WRITE eepromAddress, Word boxCount20
+    NEXT
   ELSEIF timeBlocked = 3 THEN
     boxCount30 = boxCount30 +1
     DEBUG CR, "30in Box Count = ", DEC5 boxCount30
+    FOR eepromAddress = 2 TO 3 STEP 1
+    WRITE eepromAddress, Word boxCount30
+    NEXT
   ELSEIF timeBlocked > 3 THEN
   GOSUB JamAlarm
   ELSE
     DEBUG CR, "Conveyer running as normal."
   ENDIF
 
-  'WORKING ON CREATING A RESET FOR THE LIGHTO ON PHOTO
-  ' TIME BLOCKER NEEDS TO BE RESET SO THAT THE LOOP KEEPS RUNNING
-  lightOnPhoto < 1000
-  timeBlocker = 0
+  timeBlocked = 0
 
 RETURN
 
 JamAlarm:
-  jamClear = 1
   jamCount = jamCount + 1
-  'JamTimer start
-  DO WHILE jamClear != 0
+  DO
     DEBUG CR, "There is a jam. Do something."
     HIGH 14
     PAUSE 500
     LOW 14
-    ' Needs push button reset. I.e Press button when jam is reset, jamClear is then set to 0 (true)
-    ' breaks loop and keeps on scootin.
-    ' Need number of jams, and duration of each. Store in EPPROM
-  loop
-  'JamTimer end
-  'Store jam timer time in a list
-return
+    jamTimer = jamTimer + 1
+  LOOP IN3 = 1     'Nested loop repeats until pushbutton pressed
+    FOR eepromAddress = 3 TO 4 STEP 1
+    WRITE eepromAddress, Word jamCount
+    NEXT
+    FOR eepromAddress = 3 TO 4 STEP 1
+    WRITE eepromAddress, Word jamTimer
+    NEXT
+RETURN
+
+
 
 PresentGraph:
 'Present a live graph on the computer screen that shows the total number of boxes scanned versus time from the beginning of the shift.
@@ -88,9 +102,3 @@ PresentGraph:
 
 EndShift:
 'At the end of the shift, present the accumulated data on the computer screen in a suitable tabular form.
-
-
-
-
-
-
